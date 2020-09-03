@@ -1,4 +1,5 @@
 ﻿Imports Microsoft.Band
+Imports Microsoft.Band.Tiles
 Imports Microsoft.Band.Admin
 Imports Microsoft.Band.Personalization
 Imports MahApps.Metro.Controls
@@ -12,7 +13,7 @@ Class MainWindow
     Dim BandClient As ICargoClient
     Dim EmptyList As New List(Of String)
     Dim IsDeviceConnected As Boolean = False
-    Dim BandTileList As New List(Of AdminBandTile)
+    Dim BandTileList As BandTile()
     Dim BandTileNameList As New List(Of String)
     Dim CurrentBandMeTileImage As WriteableBitmap
     Dim CurrentBandTheme As BandTheme
@@ -27,6 +28,16 @@ Class MainWindow
         txtOOBEStage.Text = ""
         txtIsOOBECompleted.Text = ""
         txtDeviceName.Text = ""
+        txtUserFirstName.Text = ""
+        txtUserLastName.Text = ""
+        txtUserHeight.Text = ""
+        txtUserWeight.Text = ""
+        txtEmailAddress.Text = ""
+        txtSmsAddress.Text = ""
+        rdbMale.IsChecked = False
+        rdbFemale.IsChecked = False
+        rdbMetricUnit.IsChecked = False
+        rdbAutoUnit.IsChecked = False
         imgMeTileImage.Source = Nothing
         btnColorBase.Background = New SolidColorBrush(Color.FromRgb(0, 175, 245))
         btnColorHighContrast.Background = New SolidColorBrush(Color.FromRgb(0, 200, 245))
@@ -52,6 +63,16 @@ Class MainWindow
         btnBrowseMeTileImage.IsEnabled = False
         btnSetMeTileImage.IsEnabled = False
         txtDeviceName.IsEnabled = False
+        txtUserFirstName.IsEnabled = False
+        txtUserLastName.IsEnabled = False
+        txtUserHeight.IsEnabled = False
+        txtUserWeight.IsEnabled = False
+        txtEmailAddress.IsEnabled = False
+        txtSmsAddress.IsEnabled = False
+        rdbMale.IsEnabled = False
+        rdbFemale.IsEnabled = False
+        rdbMetricUnit.IsEnabled = False
+        rdbAutoUnit.IsEnabled = False
         btnColorBase.IsEnabled = False
         btnColorHighlight.IsEnabled = False
         btnColorLowlight.IsEnabled = False
@@ -59,6 +80,13 @@ Class MainWindow
         btnColorHighContrast.IsEnabled = False
         btnColorMuted.IsEnabled = False
         btnSetBandTheme.IsEnabled = False
+        chkStepsEnabled.IsEnabled = False
+        chkCaloriesEnabled.IsEnabled = False
+        chkDistanceEnabled.IsEnabled = False
+        txtStepsGoal.IsEnabled = False
+        txtCaloriesGoal.IsEnabled = False
+        txtDistanceGoal.IsEnabled = False
+        btnSetGoal.IsEnabled = False
     End Sub
     Private Sub UnockOperationWindow()
         btnFinalizeOOBE.IsEnabled = True
@@ -68,6 +96,16 @@ Class MainWindow
         btnBrowseMeTileImage.IsEnabled = True
         btnSetMeTileImage.IsEnabled = True
         txtDeviceName.IsEnabled = True
+        txtUserFirstName.IsEnabled = True
+        txtUserLastName.IsEnabled = True
+        txtUserHeight.IsEnabled = True
+        txtUserWeight.IsEnabled = True
+        txtEmailAddress.IsEnabled = True
+        txtSmsAddress.IsEnabled = True
+        rdbMale.IsEnabled = True
+        rdbFemale.IsEnabled = True
+        rdbMetricUnit.IsEnabled = True
+        rdbAutoUnit.IsEnabled = True
         btnColorBase.IsEnabled = True
         btnColorHighlight.IsEnabled = True
         btnColorLowlight.IsEnabled = True
@@ -75,6 +113,13 @@ Class MainWindow
         btnColorHighContrast.IsEnabled = True
         btnColorMuted.IsEnabled = True
         btnSetBandTheme.IsEnabled = True
+        chkStepsEnabled.IsEnabled = True
+        chkCaloriesEnabled.IsEnabled = True
+        chkDistanceEnabled.IsEnabled = True
+        txtStepsGoal.IsEnabled = chkStepsEnabled.IsChecked
+        txtCaloriesGoal.IsEnabled = chkCaloriesEnabled.IsChecked
+        txtDistanceGoal.IsEnabled = chkDistanceEnabled.IsChecked
+        btnSetGoal.IsEnabled = True
     End Sub
     Private Async Sub OnBandDisconnected(sender As Object, e As EventArgs)
         Await ShowMessageAsync("已斷開連線", "已斷開與當前裝置的連線，請嘗試重新連線。")
@@ -230,18 +275,70 @@ Class MainWindow
             Try
                 txtDeviceName.Text = BandClient.GetUserProfileFromDevice.DeviceSettings.DeviceName
             Catch ex As Exception
-                txtIsOOBECompleted.Text = "試圖獲取資料時發生例外情況: " & ex.Message
+                txtDeviceName.Text = "試圖獲取資料時發生例外情況: " & ex.Message
             End Try
-            'BandTileList.Clear()
+            Try
+                txtUserFirstName.Text = BandClient.GetUserProfileFromDevice.FirstName
+            Catch ex As Exception
+                txtUserFirstName.Text = "試圖獲取資料時發生例外情況: " & ex.Message
+            End Try
+            Try
+                txtUserLastName.Text = BandClient.GetUserProfileFromDevice.LastName
+            Catch ex As Exception
+                txtUserLastName.Text = "試圖獲取資料時發生例外情況: " & ex.Message
+            End Try
+            Try
+                txtUserHeight.Text = BandClient.GetUserProfileFromDevice.Height
+            Catch ex As Exception
+                txtUserHeight.Text = "試圖獲取資料時發生例外情況: " & ex.Message
+            End Try
+            Try
+                txtUserWeight.Text = BandClient.GetUserProfileFromDevice.Weight
+            Catch ex As Exception
+                txtUserWeight.Text = "試圖獲取資料時發生例外情況: " & ex.Message
+            End Try
+            Try
+                txtEmailAddress.Text = BandClient.GetUserProfileFromDevice.EmailAddress
+            Catch ex As Exception
+                txtEmailAddress.Text = "試圖獲取資料時發生例外情況: " & ex.Message
+            End Try
+            Try
+                txtSmsAddress.Text = BandClient.GetUserProfileFromDevice.SmsAddress
+            Catch ex As Exception
+                txtSmsAddress.Text = "試圖獲取資料時發生例外情況: " & ex.Message
+            End Try
+            Try
+                If BandClient.GetUserProfileFromDevice.Gender = Gender.Male Then
+                    rdbMale.IsChecked = True
+                    rdbFemale.IsChecked = False
+                Else
+                    rdbMale.IsChecked = False
+                    rdbFemale.IsChecked = True
+                End If
+            Catch ex As Exception
+                rdbMale.IsChecked = False
+                rdbFemale.IsChecked = False
+            End Try
+            Try
+                If BandClient.GetUserProfileFromDevice.DeviceSettings.RunDisplayUnits = RunMeasurementUnitType.Metric Then
+                    rdbMetricUnit.IsChecked = True
+                    rdbAutoUnit.IsChecked = False
+                Else
+                    rdbMetricUnit.IsChecked = False
+                    rdbAutoUnit.IsChecked = True
+                End If
+            Catch ex As Exception
+                rdbMetricUnit.IsChecked = False
+                rdbAutoUnit.IsChecked = False
+            End Try
             'BandTileNameList.Clear()
             'Try
-            '    BandTileList = Await BandClient.GetDefaultTilesAsync()
-            '    For Each SingleTile As AdminBandTile In BandTileList
-            '        BandTileNameList.Add(SingleTile.Name & " [GUID=" & SingleTile.Id.ToString() & "]")
+            '    BandTileList = Await BandClient.TileManager.GetTilesAsync()
+            '    For Each SingleTile As BandTile In BandTileList
+            '        BandTileNameList.Add(SingleTile.Name & " [GUID=" & SingleTile.TileId.ToString() & "]")
             '    Next
             'Catch ex As Exception
             '    MessageBox.Show("試圖獲取裝置動態磚資料時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
-            '    BandTileList.Clear()
             '    BandTileNameList.Clear()
             'End Try
             'lstTiles.ItemsSource = BandTileNameList
@@ -343,12 +440,12 @@ Class MainWindow
                 NewBandUserProfile.DeviceSettings.DeviceName = NewBandName
                 BandClient.SaveUserProfileToBandOnly(NewBandUserProfile)
             Catch ex As Exception
-                MessageBox.Show("試圖重新命名裝置時發生例外情況: " & ex.Message)
+                MessageBox.Show("試圖重新命名裝置時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
             End Try
             Try
                 txtDeviceName.Text = BandClient.GetUserProfileFromDevice.DeviceSettings.DeviceName
             Catch ex As Exception
-                txtIsOOBECompleted.Text = "試圖獲取資料時發生例外情況: " & ex.Message
+                txtDeviceName.Text = "試圖獲取資料時發生例外情況: " & ex.Message
             End Try
         End If
     End Sub
@@ -545,6 +642,254 @@ Class MainWindow
             btnColorLowlight.Tag = Color.FromRgb(0, 150, 245)
             btnColorMuted.Tag = Color.FromRgb(0, 150, 200)
             btnColorSecondary.Tag = Color.FromRgb(225, 225, 225)
+        End Try
+    End Sub
+
+    Private Sub btnSetGoal_Click(sender As Object, e As RoutedEventArgs) Handles btnSetGoal.Click
+        Dim StepCountGoal As Integer
+        Dim CaloriesGoal As Integer
+        Dim DistanceGoal As Integer
+        Try
+            StepCountGoal = txtStepsGoal.Text
+        Catch ex As Exception
+            StepCountGoal = 5000
+        End Try
+        Try
+            CaloriesGoal = txtCaloriesGoal.Text
+        Catch ex As Exception
+            CaloriesGoal = 2000
+        End Try
+        Try
+            DistanceGoal = txtDistanceGoal.Text
+        Catch ex As Exception
+            DistanceGoal = 2
+        End Try
+        txtStepsGoal.Text = StepCountGoal
+        txtCaloriesGoal.Text = CaloriesGoal
+        txtDistanceGoal.Text = DistanceGoal
+        Try
+            Dim CurrentGoalConfig As New Goals(chkStepsEnabled.IsChecked, chkCaloriesEnabled.IsChecked, chkDistanceEnabled.IsChecked, StepCountGoal, CaloriesGoal, DistanceGoal, Now)
+            BandClient.SetGoals(CurrentGoalConfig)
+        Catch ex As Exception
+            MessageBox.Show("試圖設置運動目標時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
+        End Try
+    End Sub
+    Private Sub chkStepsEnabled_Click(sender As Object, e As RoutedEventArgs) Handles chkStepsEnabled.Click
+        txtStepsGoal.IsEnabled = chkStepsEnabled.IsChecked
+    End Sub
+
+    Private Sub chkCaloriesEnabled_Click(sender As Object, e As RoutedEventArgs) Handles chkCaloriesEnabled.Click
+        txtCaloriesGoal.IsEnabled = chkCaloriesEnabled.IsChecked
+    End Sub
+
+    Private Sub chkDistanceEnabled_Click(sender As Object, e As RoutedEventArgs) Handles chkDistanceEnabled.Click
+        txtDistanceGoal.IsEnabled = chkDistanceEnabled.IsChecked
+    End Sub
+
+    Private Sub txtUserFirstName_MouseUp(sender As Object, e As MouseButtonEventArgs) Handles txtUserFirstName.MouseUp
+        Dim NewFirstName As String
+        NewFirstName = InputBox("請輸入您的名字。", "修改名字", txtUserFirstName.Text)
+        If NewFirstName.Trim() <> "" Then
+            Try
+                Dim NewBandUserProfile As IUserProfile
+                NewBandUserProfile = BandClient.GetUserProfileFromDevice
+                NewBandUserProfile.FirstName = NewFirstName
+                BandClient.SaveUserProfileToBandOnly(NewBandUserProfile)
+            Catch ex As Exception
+                MessageBox.Show("試圖修改名字時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
+            End Try
+            Try
+                txtUserFirstName.Text = BandClient.GetUserProfileFromDevice.FirstName
+            Catch ex As Exception
+                txtUserFirstName.Text = "試圖獲取資料時發生例外情況: " & ex.Message
+            End Try
+        End If
+    End Sub
+    Private Sub txtUserLastName_MouseUp(sender As Object, e As MouseButtonEventArgs) Handles txtUserLastName.MouseUp
+        Dim NewLastName As String
+        NewLastName = InputBox("請輸入您的姓氏。", "修改姓氏", txtUserLastName.Text)
+        If NewLastName.Trim() <> "" Then
+            Try
+                Dim NewBandUserProfile As IUserProfile
+                NewBandUserProfile = BandClient.GetUserProfileFromDevice
+                NewBandUserProfile.LastName = NewLastName
+                BandClient.SaveUserProfileToBandOnly(NewBandUserProfile)
+            Catch ex As Exception
+                MessageBox.Show("試圖修改姓氏時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
+            End Try
+            Try
+                txtUserLastName.Text = BandClient.GetUserProfileFromDevice.LastName
+            Catch ex As Exception
+                txtUserLastName.Text = "試圖獲取資料時發生例外情況: " & ex.Message
+            End Try
+        End If
+    End Sub
+    Private Sub txtUserHeight_MouseUp(sender As Object, e As MouseButtonEventArgs) Handles txtUserHeight.MouseUp
+        Dim NewHeight As String
+        NewHeight = InputBox("請輸入您的身高。", "修改身高", txtUserHeight.Text)
+        If IsNumeric(NewHeight) Then
+            Try
+                Dim NewBandUserProfile As IUserProfile
+                NewBandUserProfile = BandClient.GetUserProfileFromDevice
+                NewBandUserProfile.Height = CInt(NewHeight)
+                BandClient.SaveUserProfileToBandOnly(NewBandUserProfile)
+            Catch ex As Exception
+                MessageBox.Show("試圖修改身高時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
+            End Try
+            Try
+                txtUserHeight.Text = BandClient.GetUserProfileFromDevice.Height
+            Catch ex As Exception
+                txtUserHeight.Text = "試圖獲取資料時發生例外情況: " & ex.Message
+            End Try
+        End If
+    End Sub
+    Private Sub txtUserWeight_MouseUp(sender As Object, e As MouseButtonEventArgs) Handles txtUserWeight.MouseUp
+        Dim NewWeight As String
+        NewWeight = InputBox("請輸入您的體重。", "修改體重", txtUserWeight.Text)
+        If IsNumeric(NewWeight) Then
+            Try
+                Dim NewBandUserProfile As IUserProfile
+                NewBandUserProfile = BandClient.GetUserProfileFromDevice
+                NewBandUserProfile.Weight = CInt(NewWeight)
+                BandClient.SaveUserProfileToBandOnly(NewBandUserProfile)
+            Catch ex As Exception
+                MessageBox.Show("試圖修改體重時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
+            End Try
+            Try
+                txtUserWeight.Text = BandClient.GetUserProfileFromDevice.Weight
+            Catch ex As Exception
+                txtUserWeight.Text = "試圖獲取資料時發生例外情況: " & ex.Message
+            End Try
+        End If
+    End Sub
+    Private Sub txtEmailAddress_MouseUp(sender As Object, e As MouseButtonEventArgs) Handles txtEmailAddress.MouseUp
+        Dim NewEmailAddress As String
+        NewEmailAddress = InputBox("請輸入您的電子郵件地址。", "修改電子郵件地址", txtEmailAddress.Text)
+        If NewEmailAddress.Trim() <> "" Then
+            Try
+                Dim NewBandUserProfile As IUserProfile
+                NewBandUserProfile = BandClient.GetUserProfileFromDevice
+                NewBandUserProfile.EmailAddress = NewEmailAddress
+                BandClient.SaveUserProfileToBandOnly(NewBandUserProfile)
+            Catch ex As Exception
+                MessageBox.Show("試圖修改電子郵件地址時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
+            End Try
+            Try
+                txtEmailAddress.Text = BandClient.GetUserProfileFromDevice.EmailAddress
+            Catch ex As Exception
+                txtEmailAddress.Text = "試圖獲取資料時發生例外情況: " & ex.Message
+            End Try
+        End If
+    End Sub
+    Private Sub txtSmsAddress_MouseUp(sender As Object, e As MouseButtonEventArgs) Handles txtSmsAddress.MouseUp
+        Dim NewSmsAddress As String
+        NewSmsAddress = InputBox("請輸入您的簡訊地址。", "修改簡訊地址", txtSmsAddress.Text)
+        If NewSmsAddress.Trim() <> "" Then
+            Try
+                Dim NewBandUserProfile As IUserProfile
+                NewBandUserProfile = BandClient.GetUserProfileFromDevice
+                NewBandUserProfile.SmsAddress = NewSmsAddress
+                BandClient.SaveUserProfileToBandOnly(NewBandUserProfile)
+            Catch ex As Exception
+                MessageBox.Show("試圖修改簡訊地址時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
+            End Try
+            Try
+                txtSmsAddress.Text = BandClient.GetUserProfileFromDevice.SmsAddress
+            Catch ex As Exception
+                txtSmsAddress.Text = "試圖獲取資料時發生例外情況: " & ex.Message
+            End Try
+        End If
+    End Sub
+
+    Private Sub rdbMale_Click(sender As Object, e As RoutedEventArgs) Handles rdbMale.Click
+        Try
+            Dim NewBandUserProfile As IUserProfile
+            NewBandUserProfile = BandClient.GetUserProfileFromDevice
+            NewBandUserProfile.Gender = Gender.Male
+            BandClient.SaveUserProfileToBandOnly(NewBandUserProfile)
+        Catch ex As Exception
+            MessageBox.Show("試圖修改性別時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
+        End Try
+        Try
+            If BandClient.GetUserProfileFromDevice.Gender = Gender.Male Then
+                rdbMale.IsChecked = True
+                rdbFemale.IsChecked = False
+            Else
+                rdbMale.IsChecked = False
+                rdbFemale.IsChecked = True
+            End If
+        Catch ex As Exception
+            rdbMale.IsChecked = False
+            rdbFemale.IsChecked = False
+        End Try
+    End Sub
+
+    Private Sub rdbFemale_Click(sender As Object, e As RoutedEventArgs) Handles rdbFemale.Click
+        Try
+            Dim NewBandUserProfile As IUserProfile
+            NewBandUserProfile = BandClient.GetUserProfileFromDevice
+            NewBandUserProfile.Gender = Gender.Female
+            BandClient.SaveUserProfileToBandOnly(NewBandUserProfile)
+        Catch ex As Exception
+            MessageBox.Show("試圖修改性別時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
+        End Try
+        Try
+            If BandClient.GetUserProfileFromDevice.Gender = Gender.Male Then
+                rdbMale.IsChecked = True
+                rdbFemale.IsChecked = False
+            Else
+                rdbMale.IsChecked = False
+                rdbFemale.IsChecked = True
+            End If
+        Catch ex As Exception
+            rdbMale.IsChecked = False
+            rdbFemale.IsChecked = False
+        End Try
+    End Sub
+
+    Private Sub rdbMetricUnit_Click(sender As Object, e As RoutedEventArgs) Handles rdbMetricUnit.Click
+        Try
+            Dim NewBandUserProfile As IUserProfile
+            NewBandUserProfile = BandClient.GetUserProfileFromDevice
+            NewBandUserProfile.DeviceSettings.RunDisplayUnits = RunMeasurementUnitType.Metric
+            BandClient.SaveUserProfileToBandOnly(NewBandUserProfile)
+        Catch ex As Exception
+            MessageBox.Show("試圖修改度量單位時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
+        End Try
+        Try
+            If BandClient.GetUserProfileFromDevice.DeviceSettings.RunDisplayUnits = RunMeasurementUnitType.Metric Then
+                rdbMetricUnit.IsChecked = True
+                rdbAutoUnit.IsChecked = False
+            Else
+                rdbMetricUnit.IsChecked = False
+                rdbAutoUnit.IsChecked = True
+            End If
+        Catch ex As Exception
+            rdbMetricUnit.IsChecked = False
+            rdbAutoUnit.IsChecked = False
+        End Try
+    End Sub
+
+    Private Sub rdbAutoUnit_Click(sender As Object, e As RoutedEventArgs) Handles rdbAutoUnit.Click
+        Try
+            Dim NewBandUserProfile As IUserProfile
+            NewBandUserProfile = BandClient.GetUserProfileFromDevice
+            NewBandUserProfile.DeviceSettings.RunDisplayUnits = RunMeasurementUnitType.UseLocaleSetting
+            BandClient.SaveUserProfileToBandOnly(NewBandUserProfile)
+        Catch ex As Exception
+            MessageBox.Show("試圖修改度量單位時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
+        End Try
+        Try
+            If BandClient.GetUserProfileFromDevice.DeviceSettings.RunDisplayUnits = RunMeasurementUnitType.Metric Then
+                rdbMetricUnit.IsChecked = True
+                rdbAutoUnit.IsChecked = False
+            Else
+                rdbMetricUnit.IsChecked = False
+                rdbAutoUnit.IsChecked = True
+            End If
+        Catch ex As Exception
+            rdbMetricUnit.IsChecked = False
+            rdbAutoUnit.IsChecked = False
         End Try
     End Sub
 End Class
