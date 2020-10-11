@@ -37,6 +37,14 @@
                                     <ColumnDefinition Width="1.25*"/>
                                     <ColumnDefinition Width="2.5*"/>
                                 </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="裝置型號:" FontWeight="Bold" TextWrapping="Wrap"/>
+                                <TextBlock x:Name="txtBandClass" Grid.Column="1" Text="" TextWrapping="Wrap"/>
+                            </Grid>
+                            <Grid Margin="0,0,0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1.25*"/>
+                                    <ColumnDefinition Width="2.5*"/>
+                                </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Text="裝置序號:" FontWeight="Bold" TextWrapping="Wrap"/>
                                 <TextBlock x:Name="txtSerialNumber" Grid.Column="1" Text="" TextWrapping="Wrap"/>
                             </Grid>
@@ -112,105 +120,257 @@
                                 <TextBlock Grid.Column="0" Text="OOBE 已完成:" FontWeight="Bold" TextWrapping="Wrap"/>
                                 <TextBlock x:Name="txtIsOOBECompleted" Grid.Column="1" Text="" TextWrapping="Wrap"/>
                             </Grid>
-                            <Grid Margin="0,0,0,5">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="1.25*"/>
-                                    <ColumnDefinition Width="2.5*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="裝置名稱 (點選以重新命名):" FontWeight="Bold" TextWrapping="Wrap"/>
-                                <TextBlock x:Name="txtDeviceName" Grid.Column="1" Text="" TextWrapping="Wrap"/>
-                            </Grid>
-                            <Grid Margin="0,0,0,5">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="1.25*"/>
-                                    <ColumnDefinition Width="2.5*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="使用者名 (點選以修改):" FontWeight="Bold" TextWrapping="Wrap"/>
-                                <TextBlock x:Name="txtUserFirstName" Grid.Column="1" Text="" TextWrapping="Wrap"/>
-                            </Grid>
-                            <Grid Margin="0,0,0,5">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="1.25*"/>
-                                    <ColumnDefinition Width="2.5*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="使用者姓 (點選以修改):" FontWeight="Bold" TextWrapping="Wrap"/>
-                                <TextBlock x:Name="txtUserLastName" Grid.Column="1" Text="" TextWrapping="Wrap"/>
-                            </Grid>
-                            <Grid Margin="0,0,0,5">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="1.25*"/>
-                                    <ColumnDefinition Width="2.5*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="身高 (點選以修改):" FontWeight="Bold" TextWrapping="Wrap"/>
-                                <TextBlock x:Name="txtUserHeight" Grid.Column="1" Text="" TextWrapping="Wrap"/>
-                            </Grid>
-                            <Grid Margin="0,0,0,5">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="1.25*"/>
-                                    <ColumnDefinition Width="2.5*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="體重 (點選以修改):" FontWeight="Bold" TextWrapping="Wrap"/>
-                                <TextBlock x:Name="txtUserWeight" Grid.Column="1" Text="" TextWrapping="Wrap"/>
-                            </Grid>
-                            <Grid Margin="0,0,0,5">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="1.25*"/>
-                                    <ColumnDefinition Width="2.5*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="電子郵件地址 (點選以修改):" FontWeight="Bold" TextWrapping="Wrap"/>
-                                <TextBlock x:Name="txtEmailAddress" Grid.Column="1" Text="" TextWrapping="Wrap"/>
-                            </Grid>
-                            <Grid Margin="0,0,0,5">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="1.25*"/>
-                                    <ColumnDefinition Width="2.5*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="簡訊地址 (點選以修改):" FontWeight="Bold" TextWrapping="Wrap"/>
-                                <TextBlock x:Name="txtSmsAddress" Grid.Column="1" Text="" TextWrapping="Wrap"/>
-                            </Grid>
-                            <Grid Margin="0,0,0,5">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="1.25*"/>
-                                    <ColumnDefinition Width="2.5*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="性別:" FontWeight="Bold" TextWrapping="Wrap"/>
-                                <Grid Grid.Column="1">
+                            <StackPanel x:Name="stkCargoOnly" Orientation="Vertical">
+                                <Grid Margin="0,0,0,5">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="1.25*"/>
+                                        <ColumnDefinition Width="2.5*"/>
                                     </Grid.ColumnDefinitions>
-                                    <RadioButton x:Name="rdbMale" Grid.Column="0" Content="男性" />
-                                    <RadioButton x:Name="rdbFemale" Grid.Column="1" Content="女性" />
+                                    <TextBlock Grid.Column="0" Text="裝置名稱 (點選以重新命名):" FontWeight="Bold" TextWrapping="Wrap"/>
+                                    <TextBlock x:Name="txtDeviceName" Grid.Column="1" Text="" TextWrapping="Wrap"/>
                                 </Grid>
-                            </Grid>
-                            <Grid Margin="0,0,0,5">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="1.25*"/>
-                                    <ColumnDefinition Width="2.5*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="度量單位:" FontWeight="Bold" TextWrapping="Wrap"/>
-                                <Grid Grid.Column="1">
+                                <Grid Margin="0,0,0,5">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="1.25*"/>
+                                        <ColumnDefinition Width="2.5*"/>
                                     </Grid.ColumnDefinitions>
-                                    <RadioButton x:Name="rdbMetricUnit" Grid.Column="0" Content="公制" />
-                                    <RadioButton x:Name="rdbAutoUnit" Grid.Column="1" Content="自動" />
+                                    <TextBlock Grid.Column="0" Text="使用者名 (點選以修改):" FontWeight="Bold" TextWrapping="Wrap"/>
+                                    <TextBlock x:Name="txtUserFirstName" Grid.Column="1" Text="" TextWrapping="Wrap"/>
                                 </Grid>
-                            </Grid>
+                                <Grid Margin="0,0,0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.25*"/>
+                                        <ColumnDefinition Width="2.5*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="使用者姓 (點選以修改):" FontWeight="Bold" TextWrapping="Wrap"/>
+                                    <TextBlock x:Name="txtUserLastName" Grid.Column="1" Text="" TextWrapping="Wrap"/>
+                                </Grid>
+                                <Grid Margin="0,0,0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.25*"/>
+                                        <ColumnDefinition Width="2.5*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="身高 (點選以修改):" FontWeight="Bold" TextWrapping="Wrap"/>
+                                    <TextBlock x:Name="txtUserHeight" Grid.Column="1" Text="" TextWrapping="Wrap"/>
+                                </Grid>
+                                <Grid Margin="0,0,0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.25*"/>
+                                        <ColumnDefinition Width="2.5*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="體重 (點選以修改):" FontWeight="Bold" TextWrapping="Wrap"/>
+                                    <TextBlock x:Name="txtUserWeight" Grid.Column="1" Text="" TextWrapping="Wrap"/>
+                                </Grid>
+                                <Grid Margin="0,0,0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.25*"/>
+                                        <ColumnDefinition Width="2.5*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="電子郵件地址 (點選以修改):" FontWeight="Bold" TextWrapping="Wrap"/>
+                                    <TextBlock x:Name="txtEmailAddress" Grid.Column="1" Text="" TextWrapping="Wrap"/>
+                                </Grid>
+                                <Grid Margin="0,0,0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.25*"/>
+                                        <ColumnDefinition Width="2.5*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="簡訊地址 (點選以修改):" FontWeight="Bold" TextWrapping="Wrap"/>
+                                    <TextBlock x:Name="txtSmsAddress" Grid.Column="1" Text="" TextWrapping="Wrap"/>
+                                </Grid>
+                                <Grid Margin="0,0,0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.25*"/>
+                                        <ColumnDefinition Width="2.5*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="性別:" FontWeight="Bold" TextWrapping="Wrap"/>
+                                    <Grid Grid.Column="1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <RadioButton x:Name="rdbMale" Grid.Column="0" Content="男性" />
+                                        <RadioButton x:Name="rdbFemale" Grid.Column="1" Content="女性" />
+                                    </Grid>
+                                </Grid>
+                                <Grid Margin="0,0,0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.25*"/>
+                                        <ColumnDefinition Width="2.5*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="距離度量單位:" FontWeight="Bold" TextWrapping="Wrap"/>
+                                    <Grid Grid.Column="1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <RadioButton x:Name="rdbMetricDistUnit" Grid.Column="0" Content="公制" />
+                                        <RadioButton x:Name="rdbImperialDistUnit" Grid.Column="1" Content="英制" />
+                                    </Grid>
+                                </Grid>
+                                <Grid Margin="0,0,0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.25*"/>
+                                        <ColumnDefinition Width="2.5*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="重量度量單位:" FontWeight="Bold" TextWrapping="Wrap"/>
+                                    <Grid Grid.Column="1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <RadioButton x:Name="rdbMetricMassUnit" Grid.Column="0" Content="公制" />
+                                        <RadioButton x:Name="rdbImperialMassUnit" Grid.Column="1" Content="英制" />
+                                    </Grid>
+                                </Grid>
+                                <Grid Margin="0,0,0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.25*"/>
+                                        <ColumnDefinition Width="2.5*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="體積度量單位:" FontWeight="Bold" TextWrapping="Wrap"/>
+                                    <Grid Grid.Column="1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <RadioButton x:Name="rdbMetricVolUnit" Grid.Column="0" Content="公制" />
+                                        <RadioButton x:Name="rdbImperialVolUnit" Grid.Column="1" Content="英制" />
+                                    </Grid>
+                                </Grid>
+                                <Grid Margin="0,0,0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.25*"/>
+                                        <ColumnDefinition Width="2.5*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="溫度度量單位:" FontWeight="Bold" TextWrapping="Wrap"/>
+                                    <Grid Grid.Column="1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <RadioButton x:Name="rdbMetricTempUnit" Grid.Column="0" Content="公制" />
+                                        <RadioButton x:Name="rdbImperialTempUnit" Grid.Column="1" Content="英制" />
+                                    </Grid>
+                                </Grid>
+                                <Grid Margin="0,0,0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.25*"/>
+                                        <ColumnDefinition Width="2.5*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="能量度量單位:" FontWeight="Bold" TextWrapping="Wrap"/>
+                                    <Grid Grid.Column="1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <RadioButton x:Name="rdbMetricEnergyUnit" Grid.Column="0" Content="公制" />
+                                        <RadioButton x:Name="rdbImperialEnergyUnit" Grid.Column="1" Content="英制" />
+                                    </Grid>
+                                </Grid>
+                                <Grid Margin="0,0,0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.25*"/>
+                                        <ColumnDefinition Width="2.5*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="日期格式:" FontWeight="Bold" TextWrapping="Wrap"/>
+                                    <ComboBox x:Name="cmbDateFormat" Grid.Column="1">
+                                        <ComboBoxItem Content="未指定"/>
+                                        <ComboBoxItem Content="yyyyMMdd"/>
+                                        <ComboBoxItem Content="ddMMyyyy"/>
+                                        <ComboBoxItem Content="dMMyyyy"/>
+                                        <ComboBoxItem Content="MMddyyyy"/>
+                                        <ComboBoxItem Content="Mdyyyy"/>
+                                    </ComboBox>
+                                </Grid>
+                                <Grid Margin="0,0,0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.25*"/>
+                                        <ColumnDefinition Width="2.5*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="時間格式:" FontWeight="Bold" TextWrapping="Wrap"/>
+                                    <ComboBox x:Name="cmbTimeFormat" Grid.Column="1">
+                                        <ComboBoxItem Content="未指定"/>
+                                        <ComboBoxItem Content="HHmmss"/>
+                                        <ComboBoxItem Content="Hmmss"/>
+                                        <!--<ComboBoxItem Content="hhmmss"/>
+                                    <ComboBoxItem Content="hmmss"/>-->
+                                    </ComboBox>
+                                </Grid>
+                                <Grid Margin="0,0,0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.25*"/>
+                                        <ColumnDefinition Width="2.5*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="小數符號 (點選以修改):" FontWeight="Bold" TextWrapping="Wrap"/>
+                                    <TextBlock x:Name="txtDecimalSeparator" Grid.Column="1" Text="" TextWrapping="Wrap"/>
+                                </Grid>
+                                <Grid Margin="0,0,0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.25*"/>
+                                        <ColumnDefinition Width="2.5*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="數字分位符號 (點選以修改):" FontWeight="Bold" TextWrapping="Wrap"/>
+                                    <TextBlock x:Name="txtNumberSeparator" Grid.Column="1" Text="" TextWrapping="Wrap"/>
+                                </Grid>
+                                <Grid Margin="0,0,0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1.25*"/>
+                                        <ColumnDefinition Width="2.5*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="日期分位符號 (點選以修改):" FontWeight="Bold" TextWrapping="Wrap"/>
+                                    <TextBlock x:Name="txtDateSeparator" Grid.Column="1" Text="" TextWrapping="Wrap"/>
+                                </Grid>
+                            </StackPanel>
                             <Button x:Name="btnFinalizeOOBE" Content="強制結束 OOBE" Width="100" HorizontalAlignment="Left" Margin="0,0,0,10"/>
                             <Button x:Name="btnFactoryReset" Content="恢復原廠設定" Margin="0,0,0,10" Width="100" HorizontalAlignment="Left"/>
                             <Button x:Name="btnEnableRetailDemoMode" Content="啟用示範模式" Margin="0,0,0,10" Width="100" HorizontalAlignment="Left"/>
                             <Button x:Name="btnDisableRetailDemoMode" Content="停用示範模式" Margin="0,0,0,10" Width="100" HorizontalAlignment="Left"/>
+                            <Button x:Name="btnVibrate" Content="讓裝置震動" Margin="0,0,0,10" Width="100" HorizontalAlignment="Left"/>
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
             </Controls:MetroTabItem>
-            <!--<Controls:MetroTabItem Header="磚" Controls:ControlsHelper.HeaderFontSize="20">
+            <Controls:MetroTabItem Header="磚" Controls:ControlsHelper.HeaderFontSize="20">
                 <Grid Margin="10,0,0,0">
-                    <ListBox x:Name="lstTiles"/>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid Grid.Column="0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Text="可用的磚: "/>
+                            <ListBox x:Name="lstAvailableTiles" Grid.Row="1" BorderBrush="{DynamicResource {x:Static SystemColors.ScrollBarBrushKey}}" BorderThickness="1" Margin="0,5,0,0"/>
+                        </Grid>
+                        <StackPanel Orientation="Vertical" Grid.Column="1" VerticalAlignment="Center" Margin="5,0">
+                            <Button x:Name="btnAddTile" Content="添加 -&gt;" Height="30" />
+                            <Button x:Name="btnRemoveTile" Content="&lt;- 刪除" Margin="0,10,0,0" Height="30" />
+                        </StackPanel>
+                        <Grid Grid.Column="2">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Text="已釘選的磚: "/>
+                            <ListBox x:Name="lstPinnedTiles" Grid.Row="1" BorderBrush="{DynamicResource {x:Static SystemColors.ScrollBarBrushKey}}" BorderThickness="1" Margin="0,5,0,0"/>
+                        </Grid>
+                        <StackPanel Orientation="Vertical" Grid.Column="3" VerticalAlignment="Center" Margin="5,0,0,0">
+                            <Button x:Name="btnTileMoveUp" Content="↑ 上移" Height="30" />
+                            <Button x:Name="btnTileMoveDown" Content="↓ 下移" Height="30" Margin="0,10,0,0" />
+                        </StackPanel>
+                    </Grid>
+                    <Button x:Name="btnSetBandStartStrip" Grid.Row="1" Content="設置動態磚布局(_L)" Margin="0,10,0,0" HorizontalAlignment="Right" Height="30"/>
                 </Grid>
-            </Controls:MetroTabItem>-->
+            </Controls:MetroTabItem>
             <Controls:MetroTabItem Header="運動目標" Controls:ControlsHelper.HeaderFontSize="20">
                 <Grid Margin="10,0,0,0">
                     <ScrollViewer>
@@ -251,7 +411,16 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Text="主動態磚背景圖片" Grid.Row="0" Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                    <StackPanel Grid.Row="0" Orientation="Vertical">
+                        <TextBlock Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" TextWrapping="Wrap" Margin="0,0,0,10">
+                            <Run Text="開始前，請確保您已經將主動態磚背景圖片變更為您的裝置支援的尺寸。"/>
+                            <LineBreak/>
+                            <Run Text="如果您使用的是第一代 Microsoft Band，您應當使用尺寸為 310 x 102，即寬度為 310 個像素、高度為 102 個像素的圖片。"/>
+                            <LineBreak/>
+                            <Run Text="如果您使用的是第二代 Microsoft Band，即 Microsoft Band 2，您應當使用尺寸為 310 x 128，即寬度為 310 個像素、高度為 128 個像素的圖片。"/>
+                        </TextBlock>
+                        <TextBlock Text="目前的主動態磚背景圖片:" Foreground="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                    </StackPanel>
                     <Image x:Name="imgMeTileImage" Grid.Row="1" Margin="0,10" Stretch="None" HorizontalAlignment="Left"/>
                     <StackPanel Grid.Row="2" Orientation="Horizontal" Height="30">
                         <Button x:Name="btnBrowseMeTileImage" Content="瀏覽(_W)..."/>

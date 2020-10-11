@@ -10,7 +10,6 @@ Imports System.Windows.Media.Imaging
 Imports Microsoft.WindowsAPICodePack.Dialogs
 Class MainWindow
     Dim BandList As IBandInfo()
-    Dim BandClient As ICargoClient
     Dim EmptyList As New List(Of String)
     Dim IsDeviceConnected As Boolean = False
     Dim BandTileList As BandTile()
@@ -19,6 +18,7 @@ Class MainWindow
     Dim CurrentBandTheme As BandTheme
     Private Sub ClearInfo(Optional LockOperationWindows As Boolean = True)
         txtApplicationVersion.Text = ""
+        txtBandClass.Text = ""
         txtBootloaderVersion.Text = ""
         txtDeviceUniqueID.Text = ""
         txtHardwareVersion.Text = ""
@@ -34,10 +34,23 @@ Class MainWindow
         txtUserWeight.Text = ""
         txtEmailAddress.Text = ""
         txtSmsAddress.Text = ""
+        txtDateSeparator.Text = ""
+        txtDecimalSeparator.Text = ""
+        txtNumberSeparator.Text = ""
+        cmbDateFormat.SelectedIndex = 0
+        cmbTimeFormat.SelectedIndex = 0
         rdbMale.IsChecked = False
         rdbFemale.IsChecked = False
-        rdbMetricUnit.IsChecked = False
-        rdbAutoUnit.IsChecked = False
+        rdbMetricDistUnit.IsChecked = False
+        rdbImperialDistUnit.IsChecked = False
+        rdbMetricMassUnit.IsChecked = False
+        rdbImperialMassUnit.IsChecked = False
+        rdbMetricVolUnit.IsChecked = False
+        rdbImperialVolUnit.IsChecked = False
+        rdbMetricTempUnit.IsChecked = False
+        rdbImperialTempUnit.IsChecked = False
+        rdbMetricEnergyUnit.IsChecked = False
+        rdbImperialEnergyUnit.IsChecked = False
         imgMeTileImage.Source = Nothing
         btnColorBase.Background = New SolidColorBrush(Color.FromRgb(0, 175, 245))
         btnColorHighContrast.Background = New SolidColorBrush(Color.FromRgb(0, 200, 245))
@@ -51,6 +64,8 @@ Class MainWindow
         btnColorLowlight.Tag = Color.FromRgb(0, 150, 245)
         btnColorMuted.Tag = Color.FromRgb(0, 150, 200)
         btnColorSecondary.Tag = Color.FromRgb(225, 225, 225)
+        lstAvailableTiles.ItemsSource = EmptyList
+        lstPinnedTiles.ItemsSource = EmptyList
         If LockOperationWindows Then
             LockOperationWindow()
         End If
@@ -60,6 +75,7 @@ Class MainWindow
         btnFactoryReset.IsEnabled = False
         btnEnableRetailDemoMode.IsEnabled = False
         btnDisableRetailDemoMode.IsEnabled = False
+        btnVibrate.IsEnabled = False
         btnBrowseMeTileImage.IsEnabled = False
         btnSetMeTileImage.IsEnabled = False
         txtDeviceName.IsEnabled = False
@@ -71,8 +87,16 @@ Class MainWindow
         txtSmsAddress.IsEnabled = False
         rdbMale.IsEnabled = False
         rdbFemale.IsEnabled = False
-        rdbMetricUnit.IsEnabled = False
-        rdbAutoUnit.IsEnabled = False
+        rdbMetricDistUnit.IsEnabled = False
+        rdbImperialDistUnit.IsEnabled = False
+        rdbMetricMassUnit.IsEnabled = False
+        rdbImperialMassUnit.IsEnabled = False
+        rdbMetricVolUnit.IsEnabled = False
+        rdbImperialVolUnit.IsEnabled = False
+        rdbMetricTempUnit.IsEnabled = False
+        rdbImperialTempUnit.IsEnabled = False
+        rdbMetricEnergyUnit.IsEnabled = False
+        rdbImperialEnergyUnit.IsEnabled = False
         btnColorBase.IsEnabled = False
         btnColorHighlight.IsEnabled = False
         btnColorLowlight.IsEnabled = False
@@ -87,12 +111,27 @@ Class MainWindow
         txtCaloriesGoal.IsEnabled = False
         txtDistanceGoal.IsEnabled = False
         btnSetGoal.IsEnabled = False
+        lstAvailableTiles.SelectedIndex = -1
+        lstAvailableTiles.IsEnabled = False
+        lstPinnedTiles.SelectedIndex = -1
+        lstPinnedTiles.IsEnabled = False
+        btnAddTile.IsEnabled = False
+        btnRemoveTile.IsEnabled = False
+        btnTileMoveUp.IsEnabled = False
+        btnTileMoveDown.IsEnabled = False
+        btnSetBandStartStrip.IsEnabled = False
+        txtDateSeparator.IsEnabled = False
+        txtDecimalSeparator.IsEnabled = False
+        txtNumberSeparator.IsEnabled = False
+        cmbDateFormat.IsEnabled = False
+        cmbTimeFormat.IsEnabled = False
     End Sub
     Private Sub UnockOperationWindow()
         btnFinalizeOOBE.IsEnabled = True
         btnFactoryReset.IsEnabled = True
         btnEnableRetailDemoMode.IsEnabled = True
         btnDisableRetailDemoMode.IsEnabled = True
+        btnVibrate.IsEnabled = True
         btnBrowseMeTileImage.IsEnabled = True
         btnSetMeTileImage.IsEnabled = True
         txtDeviceName.IsEnabled = True
@@ -104,8 +143,16 @@ Class MainWindow
         txtSmsAddress.IsEnabled = True
         rdbMale.IsEnabled = True
         rdbFemale.IsEnabled = True
-        rdbMetricUnit.IsEnabled = True
-        rdbAutoUnit.IsEnabled = True
+        rdbMetricDistUnit.IsEnabled = True
+        rdbImperialDistUnit.IsEnabled = True
+        rdbMetricMassUnit.IsEnabled = True
+        rdbImperialMassUnit.IsEnabled = True
+        rdbMetricVolUnit.IsEnabled = True
+        rdbImperialVolUnit.IsEnabled = True
+        rdbMetricTempUnit.IsEnabled = True
+        rdbImperialTempUnit.IsEnabled = True
+        rdbMetricEnergyUnit.IsEnabled = True
+        rdbImperialEnergyUnit.IsEnabled = True
         btnColorBase.IsEnabled = True
         btnColorHighlight.IsEnabled = True
         btnColorLowlight.IsEnabled = True
@@ -120,6 +167,59 @@ Class MainWindow
         txtCaloriesGoal.IsEnabled = chkCaloriesEnabled.IsChecked
         txtDistanceGoal.IsEnabled = chkDistanceEnabled.IsChecked
         btnSetGoal.IsEnabled = True
+        lstAvailableTiles.IsEnabled = True
+        lstPinnedTiles.IsEnabled = True
+        btnSetBandStartStrip.IsEnabled = True
+        lstAvailableTiles.SelectedIndex = -1
+        lstPinnedTiles.SelectedIndex = -1
+        txtDateSeparator.IsEnabled = True
+        txtDecimalSeparator.IsEnabled = True
+        txtNumberSeparator.IsEnabled = True
+        cmbDateFormat.IsEnabled = True
+        cmbTimeFormat.IsEnabled = True
+    End Sub
+    Private Sub RefreshTileList(Optional NextAvailableTilesListOriginalSelectedIndex As Integer = -2, Optional NextPinnedTilesListOriginalSelectedIndex As Integer = -2)
+        Dim AvailableTilesListOriginalSelectedIndex As Integer = NextAvailableTilesListOriginalSelectedIndex
+        Dim PinnedTilesListOriginalSelectedIndex As Integer = NextPinnedTilesListOriginalSelectedIndex
+        If NextAvailableTilesListOriginalSelectedIndex = -2 Then
+            AvailableTilesListOriginalSelectedIndex = lstAvailableTiles.SelectedIndex
+        End If
+        If NextPinnedTilesListOriginalSelectedIndex = -2 Then
+            PinnedTilesListOriginalSelectedIndex = lstPinnedTiles.SelectedIndex
+        End If
+
+        lstAvailableTiles.ItemsSource = EmptyList
+        lstPinnedTiles.ItemsSource = EmptyList
+
+        lstAvailableTiles.ItemsSource = BandAvailableTilesNameList
+        lstPinnedTiles.ItemsSource = UserEditedTilesNameList
+
+        Try
+            lstAvailableTiles.SelectedIndex = AvailableTilesListOriginalSelectedIndex
+        Catch ex As Exception
+            lstAvailableTiles.SelectedIndex = -1
+        End Try
+        Try
+            lstPinnedTiles.SelectedIndex = PinnedTilesListOriginalSelectedIndex
+        Catch ex As Exception
+            lstPinnedTiles.SelectedIndex = -1
+        End Try
+
+        If lstPinnedTiles.SelectedIndex > -1 Then
+            btnRemoveTile.IsEnabled = True
+            btnTileMoveUp.IsEnabled = True
+            btnTileMoveDown.IsEnabled = True
+            If lstPinnedTiles.SelectedIndex = 0 Then
+                btnTileMoveUp.IsEnabled = False
+            End If
+            If lstPinnedTiles.SelectedIndex = UserEditedTilesNameList.Count - 1 Then
+                btnTileMoveDown.IsEnabled = False
+            End If
+        End If
+        If lstAvailableTiles.SelectedIndex > -1 Then
+            btnAddTile.IsEnabled = True
+        End If
+
     End Sub
     Private Async Sub OnBandDisconnected(sender As Object, e As EventArgs)
         Await ShowMessageAsync("已斷開連線", "已斷開與當前裝置的連線，請嘗試重新連線。")
@@ -133,6 +233,7 @@ Class MainWindow
         Catch ex As Exception
 
         End Try
+        CurrentBandClass = BandClass.Unknown
         IsDeviceConnected = False
         LockOperationWindow()
     End Sub
@@ -148,7 +249,7 @@ Class MainWindow
             lstDevices.ItemsSource = EmptyList
             If BandList.Length >= 1 Then
                 For i = 0 To BandList.Length - 1
-                    DeviceNameList.Add(BandList(i).Name & " [通過" & IIf(BandList(i).ConnectionType = BandConnectionType.Bluetooth, "藍牙", " USB ") & "連線]")
+                    DeviceNameList.Add(BandList(i).Name & " [透過" & IIf(BandList(i).ConnectionType = BandConnectionType.Bluetooth, "藍牙", " USB ") & "連線]")
                 Next
                 lstDevices.ItemsSource = DeviceNameList
                 lstDevices.SelectedIndex = 0
@@ -205,6 +306,7 @@ Class MainWindow
         Catch ex As Exception
 
         End Try
+        CurrentBandClass = BandClass.Unknown
         IsDeviceConnected = False
         If lstDevices.SelectedIndex < 0 Then
             Await ShowMessageAsync("無法連線到裝置", "無法連線到裝置，因為沒有任何可供連線的裝置。")
@@ -221,7 +323,22 @@ Class MainWindow
         Else
             IsDeviceConnected = True
         End If
+
         If IsDeviceConnected Then
+            Try
+                CurrentBandClass = BandClient.ConnectedBandConstants.BandClass
+                Select Case CurrentBandClass
+                    Case BandClass.Cargo
+                        txtBandClass.Text = "Microsoft Band (Cargo)"
+                    Case BandClass.Envoy
+                        txtBandClass.Text = "Microsoft Band 2 (Envoy)"
+                    Case Else
+                        txtBandClass.Text = "不明"
+                End Select
+            Catch ex As Exception
+                txtBandClass.Text = "試圖獲取資料時發生例外情況: " & ex.Message
+                CurrentBandClass = BandClass.Unknown
+            End Try
             Try
                 txtSerialNumber.Text = BandClient.SerialNumber
             Catch ex As Exception
@@ -272,79 +389,159 @@ Class MainWindow
             Catch ex As Exception
                 txtIsOOBECompleted.Text = "試圖獲取資料時發生例外情況: " & ex.Message
             End Try
-            Try
-                txtDeviceName.Text = BandClient.GetUserProfileFromDevice.DeviceSettings.DeviceName
-            Catch ex As Exception
-                txtDeviceName.Text = "試圖獲取資料時發生例外情況: " & ex.Message
-            End Try
-            Try
-                txtUserFirstName.Text = BandClient.GetUserProfileFromDevice.FirstName
-            Catch ex As Exception
-                txtUserFirstName.Text = "試圖獲取資料時發生例外情況: " & ex.Message
-            End Try
-            Try
-                txtUserLastName.Text = BandClient.GetUserProfileFromDevice.LastName
-            Catch ex As Exception
-                txtUserLastName.Text = "試圖獲取資料時發生例外情況: " & ex.Message
-            End Try
-            Try
-                txtUserHeight.Text = BandClient.GetUserProfileFromDevice.Height
-            Catch ex As Exception
-                txtUserHeight.Text = "試圖獲取資料時發生例外情況: " & ex.Message
-            End Try
-            Try
-                txtUserWeight.Text = BandClient.GetUserProfileFromDevice.Weight
-            Catch ex As Exception
-                txtUserWeight.Text = "試圖獲取資料時發生例外情況: " & ex.Message
-            End Try
-            Try
-                txtEmailAddress.Text = BandClient.GetUserProfileFromDevice.EmailAddress
-            Catch ex As Exception
-                txtEmailAddress.Text = "試圖獲取資料時發生例外情況: " & ex.Message
-            End Try
-            Try
-                txtSmsAddress.Text = BandClient.GetUserProfileFromDevice.SmsAddress
-            Catch ex As Exception
-                txtSmsAddress.Text = "試圖獲取資料時發生例外情況: " & ex.Message
-            End Try
-            Try
-                If BandClient.GetUserProfileFromDevice.Gender = Gender.Male Then
-                    rdbMale.IsChecked = True
-                    rdbFemale.IsChecked = False
-                Else
+            'BEGIN
+            'GetUserProfileFromDevice()方法不支援Microsoft Band 2
+            If CurrentBandClass = BandClass.Cargo Then
+                Try
+                    txtDeviceName.Text = BandClient.GetUserProfileFromDevice.DeviceSettings.DeviceName
+                Catch ex As Exception
+                    txtDeviceName.Text = "試圖獲取資料時發生例外情況: " & ex.Message
+                End Try
+                Try
+                    txtUserFirstName.Text = BandClient.GetUserProfileFromDevice.FirstName
+                Catch ex As Exception
+                    txtUserFirstName.Text = "試圖獲取資料時發生例外情況: " & ex.Message
+                End Try
+                Try
+                    txtUserLastName.Text = BandClient.GetUserProfileFromDevice.LastName
+                Catch ex As Exception
+                    txtUserLastName.Text = "試圖獲取資料時發生例外情況: " & ex.Message
+                End Try
+                Try
+                    txtUserHeight.Text = BandClient.GetUserProfileFromDevice.Height
+                Catch ex As Exception
+                    txtUserHeight.Text = "試圖獲取資料時發生例外情況: " & ex.Message
+                End Try
+                Try
+                    txtUserWeight.Text = BandClient.GetUserProfileFromDevice.Weight
+                Catch ex As Exception
+                    txtUserWeight.Text = "試圖獲取資料時發生例外情況: " & ex.Message
+                End Try
+                Try
+                    txtEmailAddress.Text = BandClient.GetUserProfileFromDevice.EmailAddress
+                Catch ex As Exception
+                    txtEmailAddress.Text = "試圖獲取資料時發生例外情況: " & ex.Message
+                End Try
+                Try
+                    txtSmsAddress.Text = BandClient.GetUserProfileFromDevice.SmsAddress
+                Catch ex As Exception
+                    txtSmsAddress.Text = "試圖獲取資料時發生例外情況: " & ex.Message
+                End Try
+                Try
+                    If BandClient.GetUserProfileFromDevice.Gender = Gender.Male Then
+                        rdbMale.IsChecked = True
+                        rdbFemale.IsChecked = False
+                    Else
+                        rdbMale.IsChecked = False
+                        rdbFemale.IsChecked = True
+                    End If
+                Catch ex As Exception
                     rdbMale.IsChecked = False
-                    rdbFemale.IsChecked = True
-                End If
-            Catch ex As Exception
-                rdbMale.IsChecked = False
-                rdbFemale.IsChecked = False
-            End Try
+                    rdbFemale.IsChecked = False
+                End Try
+                Try
+                    If BandClient.GetUserProfileFromDevice.DeviceSettings.LocaleSettings.DistanceLongUnits = DistanceUnitType.Metric Then
+                        rdbMetricDistUnit.IsChecked = True
+                        rdbImperialDistUnit.IsChecked = False
+                    Else
+                        rdbMetricDistUnit.IsChecked = False
+                        rdbImperialDistUnit.IsChecked = True
+                    End If
+                Catch ex As Exception
+                    rdbMetricDistUnit.IsChecked = False
+                    rdbImperialDistUnit.IsChecked = False
+                End Try
+                Try
+                    If BandClient.GetUserProfileFromDevice.DeviceSettings.LocaleSettings.MassUnits = MassUnitType.Metric Then
+                        rdbMetricMassUnit.IsChecked = True
+                        rdbImperialMassUnit.IsChecked = False
+                    Else
+                        rdbMetricMassUnit.IsChecked = False
+                        rdbImperialMassUnit.IsChecked = True
+                    End If
+                Catch ex As Exception
+                    rdbMetricMassUnit.IsChecked = False
+                    rdbImperialMassUnit.IsChecked = False
+                End Try
+                Try
+                    If BandClient.GetUserProfileFromDevice.DeviceSettings.LocaleSettings.VolumeUnits = VolumeUnitType.Metric Then
+                        rdbMetricVolUnit.IsChecked = True
+                        rdbImperialVolUnit.IsChecked = False
+                    Else
+                        rdbMetricVolUnit.IsChecked = False
+                        rdbImperialVolUnit.IsChecked = True
+                    End If
+                Catch ex As Exception
+                    rdbMetricVolUnit.IsChecked = False
+                    rdbImperialVolUnit.IsChecked = False
+                End Try
+                Try
+                    If BandClient.GetUserProfileFromDevice.DeviceSettings.LocaleSettings.TemperatureUnits = TemperatureUnitType.Metric Then
+                        rdbMetricTempUnit.IsChecked = True
+                        rdbImperialTempUnit.IsChecked = False
+                    Else
+                        rdbMetricTempUnit.IsChecked = False
+                        rdbImperialTempUnit.IsChecked = True
+                    End If
+                Catch ex As Exception
+                    rdbMetricTempUnit.IsChecked = False
+                    rdbImperialTempUnit.IsChecked = False
+                End Try
+                Try
+                    If BandClient.GetUserProfileFromDevice.DeviceSettings.LocaleSettings.EnergyUnits = EnergyUnitType.Metric Then
+                        rdbMetricEnergyUnit.IsChecked = True
+                        rdbImperialEnergyUnit.IsChecked = False
+                    Else
+                        rdbMetricEnergyUnit.IsChecked = False
+                        rdbImperialEnergyUnit.IsChecked = True
+                    End If
+                Catch ex As Exception
+                    rdbMetricEnergyUnit.IsChecked = False
+                    rdbImperialEnergyUnit.IsChecked = False
+                End Try
+                Try
+                    cmbDateFormat.SelectedIndex = BandClient.GetUserProfileFromDevice.DeviceSettings.LocaleSettings.DateFormat
+                Catch ex As Exception
+                    cmbDateFormat.SelectedIndex = 0
+                End Try
+                Try
+                    cmbTimeFormat.SelectedIndex = BandClient.GetUserProfileFromDevice.DeviceSettings.LocaleSettings.TimeFormat
+                Catch ex As Exception
+                    cmbTimeFormat.SelectedIndex = 0
+                End Try
+                Try
+                    txtNumberSeparator.Text = BandClient.GetUserProfileFromDevice.DeviceSettings.LocaleSettings.NumberSeparator
+                Catch ex As Exception
+                    txtNumberSeparator.Text = "試圖獲取小數符號時發生例外情況: " & ex.Message
+                End Try
+                Try
+                    txtDecimalSeparator.Text = BandClient.GetUserProfileFromDevice.DeviceSettings.LocaleSettings.DecimalSeparator
+                Catch ex As Exception
+                    txtDecimalSeparator.Text = "試圖獲取數字分位符號時發生例外情況: " & ex.Message
+                End Try
+                Try
+                    txtDateSeparator.Text = BandClient.GetUserProfileFromDevice.DeviceSettings.LocaleSettings.DateSeparator
+                Catch ex As Exception
+                    txtDateSeparator.Text = "試圖獲取日期分位符號時發生例外情況: " & ex.Message
+                End Try
+                stkCargoOnly.Visibility = Windows.Visibility.Visible
+            Else
+                stkCargoOnly.Visibility = Windows.Visibility.Collapsed
+            End If
+            '支援Microsoft Band 2後移除此因應措施
+            'END
             Try
-                If BandClient.GetUserProfileFromDevice.DeviceSettings.RunDisplayUnits = RunMeasurementUnitType.Metric Then
-                    rdbMetricUnit.IsChecked = True
-                    rdbAutoUnit.IsChecked = False
-                Else
-                    rdbMetricUnit.IsChecked = False
-                    rdbAutoUnit.IsChecked = True
-                End If
+                GetBandTileInfo()
+                lstAvailableTiles.ItemsSource = BandAvailableTilesNameList
+                lstPinnedTiles.ItemsSource = UserEditedTilesNameList
             Catch ex As Exception
-                rdbMetricUnit.IsChecked = False
-                rdbAutoUnit.IsChecked = False
+                MessageBox.Show("試圖獲取裝置動態磚資料時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
+                lstAvailableTiles.ItemsSource = EmptyList
+                lstPinnedTiles.ItemsSource = EmptyList
             End Try
-            'BandTileNameList.Clear()
-            'Try
-            '    BandTileList = Await BandClient.TileManager.GetTilesAsync()
-            '    For Each SingleTile As BandTile In BandTileList
-            '        BandTileNameList.Add(SingleTile.Name & " [GUID=" & SingleTile.TileId.ToString() & "]")
-            '    Next
-            'Catch ex As Exception
-            '    MessageBox.Show("試圖獲取裝置動態磚資料時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
-            '    BandTileNameList.Clear()
-            'End Try
-            'lstTiles.ItemsSource = BandTileNameList
             Try
                 Dim BandImage As BandImage
-                BandImage = Await BandClient.GetMeTileImageAsync()
+                BandImage = Await BandClient.PersonalizationManager.GetMeTileImageAsync()
                 Dim BandImageBitmap As WriteableBitmap
                 BandImageBitmap = BandImage.ToWriteableBitmap()
                 CurrentBandMeTileImage = BandImageBitmap
@@ -357,7 +554,7 @@ Class MainWindow
                 imgMeTileImage.Tag = ""
             End Try
             Try
-                CurrentBandTheme = Await BandClient.PersonalizationManager.GetThemeAsync
+                CurrentBandTheme = Await BandClient.PersonalizationManager.GetThemeAsync()
                 btnColorBase.Background = New SolidColorBrush(Color.FromRgb(CurrentBandTheme.Base.R, CurrentBandTheme.Base.G, CurrentBandTheme.Base.B))
                 btnColorHighContrast.Background = New SolidColorBrush(Color.FromRgb(CurrentBandTheme.HighContrast.R, CurrentBandTheme.HighContrast.G, CurrentBandTheme.HighContrast.B))
                 btnColorHighlight.Background = New SolidColorBrush(Color.FromRgb(CurrentBandTheme.Highlight.R, CurrentBandTheme.Highlight.G, CurrentBandTheme.Highlight.B))
@@ -385,6 +582,9 @@ Class MainWindow
                 btnColorMuted.Tag = Color.FromRgb(0, 150, 200)
                 btnColorSecondary.Tag = Color.FromRgb(225, 225, 225)
             End Try
+            If CurrentBandClass <> BandClass.Cargo Then
+                Await ShowMessageAsync("部分功能已停用", "部分設定項目目前僅適用於第一代 Microsoft Band，而您似乎連線到了一個更新的 Microsoft Band 裝置，因此這些設定項目已被停用。")
+            End If
             UnockOperationWindow()
         Else
             LockOperationWindow()
@@ -473,8 +673,8 @@ Class MainWindow
             Dim BitmapSource As New BitmapImage()
             'BitmapSource.BeginInit()
             BitmapSource = imgMeTileImage.Source
-            BitmapSource.DecodePixelHeight = 102
-            BitmapSource.DecodePixelWidth = 310
+            'BitmapSource.DecodePixelHeight = 102
+            'BitmapSource.DecodePixelWidth = 310
             'BitmapSource.EndInit()
             Dim Pbgra32Image = New FormatConvertedBitmap(BitmapSource, PixelFormats.Pbgra32, Nothing, 0)
             Dim NewMeTileImage As New WriteableBitmap(Pbgra32Image)
@@ -485,7 +685,7 @@ Class MainWindow
         End Try
         Try
             Dim BandImage As BandImage
-            BandImage = Await BandClient.GetMeTileImageAsync()
+            BandImage = Await BandClient.PersonalizationManager.GetMeTileImageAsync()
             Dim BandImageBitmap As WriteableBitmap
             BandImageBitmap = BandImage.ToWriteableBitmap()
             CurrentBandMeTileImage = BandImageBitmap
@@ -615,7 +815,7 @@ Class MainWindow
             MessageBox.Show("試圖設置裝置佈景主題時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
         End Try
         Try
-            CurrentBandTheme = Await BandClient.PersonalizationManager.GetThemeAsync
+            CurrentBandTheme = Await BandClient.PersonalizationManager.GetThemeAsync()
             btnColorBase.Background = New SolidColorBrush(Color.FromRgb(CurrentBandTheme.Base.R, CurrentBandTheme.Base.G, CurrentBandTheme.Base.B))
             btnColorHighContrast.Background = New SolidColorBrush(Color.FromRgb(CurrentBandTheme.HighContrast.R, CurrentBandTheme.HighContrast.G, CurrentBandTheme.HighContrast.B))
             btnColorHighlight.Background = New SolidColorBrush(Color.FromRgb(CurrentBandTheme.Highlight.R, CurrentBandTheme.Highlight.G, CurrentBandTheme.Highlight.B))
@@ -668,7 +868,15 @@ Class MainWindow
         txtCaloriesGoal.Text = CaloriesGoal
         txtDistanceGoal.Text = DistanceGoal
         Try
-            Dim CurrentGoalConfig As New Goals(chkStepsEnabled.IsChecked, chkCaloriesEnabled.IsChecked, chkDistanceEnabled.IsChecked, StepCountGoal, CaloriesGoal, DistanceGoal, Now)
+            Dim CurrentGoalConfig As New Goals
+            Select Case CurrentBandClass
+                Case BandClass.Cargo
+                    CurrentGoalConfig = New Goals(chkStepsEnabled.IsChecked, chkCaloriesEnabled.IsChecked, chkDistanceEnabled.IsChecked, StepCountGoal, CaloriesGoal, DistanceGoal, Now)
+                Case BandClass.Envoy
+                    CurrentGoalConfig = New Goals(chkStepsEnabled.IsChecked, chkCaloriesEnabled.IsChecked, chkDistanceEnabled.IsChecked, False, StepCountGoal, CaloriesGoal, DistanceGoal, 0, Now)
+                Case BandClass.Unknown
+                    CurrentGoalConfig = New Goals(chkStepsEnabled.IsChecked, chkCaloriesEnabled.IsChecked, chkDistanceEnabled.IsChecked, StepCountGoal, CaloriesGoal, DistanceGoal, Now)
+            End Select
             BandClient.SetGoals(CurrentGoalConfig)
         Catch ex As Exception
             MessageBox.Show("試圖設置運動目標時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
@@ -847,49 +1055,417 @@ Class MainWindow
         End Try
     End Sub
 
-    Private Sub rdbMetricUnit_Click(sender As Object, e As RoutedEventArgs) Handles rdbMetricUnit.Click
+    Private Sub rdbMetricDistUnit_Click(sender As Object, e As RoutedEventArgs) Handles rdbMetricDistUnit.Click
         Try
             Dim NewBandUserProfile As IUserProfile
             NewBandUserProfile = BandClient.GetUserProfileFromDevice
-            NewBandUserProfile.DeviceSettings.RunDisplayUnits = RunMeasurementUnitType.Metric
+            NewBandUserProfile.DeviceSettings.LocaleSettings.DistanceLongUnits = DistanceUnitType.Metric
+            NewBandUserProfile.DeviceSettings.LocaleSettings.DistanceShortUnits = DistanceUnitType.Metric
             BandClient.SaveUserProfileToBandOnly(NewBandUserProfile)
         Catch ex As Exception
-            MessageBox.Show("試圖修改度量單位時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
+            MessageBox.Show("試圖修改距離度量單位時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
         End Try
         Try
-            If BandClient.GetUserProfileFromDevice.DeviceSettings.RunDisplayUnits = RunMeasurementUnitType.Metric Then
-                rdbMetricUnit.IsChecked = True
-                rdbAutoUnit.IsChecked = False
+            If BandClient.GetUserProfileFromDevice.DeviceSettings.LocaleSettings.DistanceLongUnits = DistanceUnitType.Metric Then
+                rdbMetricDistUnit.IsChecked = True
+                rdbImperialDistUnit.IsChecked = False
             Else
-                rdbMetricUnit.IsChecked = False
-                rdbAutoUnit.IsChecked = True
+                rdbMetricDistUnit.IsChecked = False
+                rdbImperialDistUnit.IsChecked = True
             End If
         Catch ex As Exception
-            rdbMetricUnit.IsChecked = False
-            rdbAutoUnit.IsChecked = False
+            rdbMetricDistUnit.IsChecked = False
+            rdbImperialDistUnit.IsChecked = False
         End Try
     End Sub
 
-    Private Sub rdbAutoUnit_Click(sender As Object, e As RoutedEventArgs) Handles rdbAutoUnit.Click
+    Private Sub rdbImperialDistUnit_Click(sender As Object, e As RoutedEventArgs) Handles rdbImperialDistUnit.Click
         Try
             Dim NewBandUserProfile As IUserProfile
             NewBandUserProfile = BandClient.GetUserProfileFromDevice
-            NewBandUserProfile.DeviceSettings.RunDisplayUnits = RunMeasurementUnitType.UseLocaleSetting
+            NewBandUserProfile.DeviceSettings.LocaleSettings.DistanceLongUnits = DistanceUnitType.Imperial
+            NewBandUserProfile.DeviceSettings.LocaleSettings.DistanceShortUnits = DistanceUnitType.Imperial
             BandClient.SaveUserProfileToBandOnly(NewBandUserProfile)
         Catch ex As Exception
-            MessageBox.Show("試圖修改度量單位時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
+            MessageBox.Show("試圖修改距離度量單位時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
         End Try
         Try
-            If BandClient.GetUserProfileFromDevice.DeviceSettings.RunDisplayUnits = RunMeasurementUnitType.Metric Then
-                rdbMetricUnit.IsChecked = True
-                rdbAutoUnit.IsChecked = False
+            If BandClient.GetUserProfileFromDevice.DeviceSettings.LocaleSettings.DistanceLongUnits = DistanceUnitType.Metric Then
+                rdbMetricDistUnit.IsChecked = True
+                rdbImperialDistUnit.IsChecked = False
             Else
-                rdbMetricUnit.IsChecked = False
-                rdbAutoUnit.IsChecked = True
+                rdbMetricDistUnit.IsChecked = False
+                rdbImperialDistUnit.IsChecked = True
             End If
         Catch ex As Exception
-            rdbMetricUnit.IsChecked = False
-            rdbAutoUnit.IsChecked = False
+            rdbMetricDistUnit.IsChecked = False
+            rdbImperialDistUnit.IsChecked = False
+        End Try
+    End Sub
+    Private Sub rdbMetricMassUnit_Click(sender As Object, e As RoutedEventArgs) Handles rdbMetricMassUnit.Click
+        Try
+            Dim NewBandUserProfile As IUserProfile
+            NewBandUserProfile = BandClient.GetUserProfileFromDevice
+            NewBandUserProfile.DeviceSettings.LocaleSettings.MassUnits = MassUnitType.Metric
+            BandClient.SaveUserProfileToBandOnly(NewBandUserProfile)
+        Catch ex As Exception
+            MessageBox.Show("試圖修改重量度量單位時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
+        End Try
+        Try
+            If BandClient.GetUserProfileFromDevice.DeviceSettings.LocaleSettings.MassUnits = MassUnitType.Metric Then
+                rdbMetricMassUnit.IsChecked = True
+                rdbImperialMassUnit.IsChecked = False
+            Else
+                rdbMetricMassUnit.IsChecked = False
+                rdbImperialMassUnit.IsChecked = True
+            End If
+        Catch ex As Exception
+            rdbMetricMassUnit.IsChecked = False
+            rdbImperialMassUnit.IsChecked = False
+        End Try
+    End Sub
+
+    Private Sub rdbImperialMassUnit_Click(sender As Object, e As RoutedEventArgs) Handles rdbImperialMassUnit.Click
+        Try
+            Dim NewBandUserProfile As IUserProfile
+            NewBandUserProfile = BandClient.GetUserProfileFromDevice
+            NewBandUserProfile.DeviceSettings.LocaleSettings.MassUnits = MassUnitType.Imperial
+            BandClient.SaveUserProfileToBandOnly(NewBandUserProfile)
+        Catch ex As Exception
+            MessageBox.Show("試圖修改重量度量單位時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
+        End Try
+        Try
+            If BandClient.GetUserProfileFromDevice.DeviceSettings.LocaleSettings.MassUnits = MassUnitType.Metric Then
+                rdbMetricMassUnit.IsChecked = True
+                rdbImperialMassUnit.IsChecked = False
+            Else
+                rdbMetricMassUnit.IsChecked = False
+                rdbImperialMassUnit.IsChecked = True
+            End If
+        Catch ex As Exception
+            rdbMetricMassUnit.IsChecked = False
+            rdbImperialMassUnit.IsChecked = False
+        End Try
+    End Sub
+    Private Sub rdbMetricVolUnit_Click(sender As Object, e As RoutedEventArgs) Handles rdbMetricVolUnit.Click
+        Try
+            Dim NewBandUserProfile As IUserProfile
+            NewBandUserProfile = BandClient.GetUserProfileFromDevice
+            NewBandUserProfile.DeviceSettings.LocaleSettings.VolumeUnits = VolumeUnitType.Metric
+            BandClient.SaveUserProfileToBandOnly(NewBandUserProfile)
+        Catch ex As Exception
+            MessageBox.Show("試圖修改體積度量單位時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
+        End Try
+        Try
+            If BandClient.GetUserProfileFromDevice.DeviceSettings.LocaleSettings.VolumeUnits = VolumeUnitType.Metric Then
+                rdbMetricVolUnit.IsChecked = True
+                rdbImperialVolUnit.IsChecked = False
+            Else
+                rdbMetricVolUnit.IsChecked = False
+                rdbImperialVolUnit.IsChecked = True
+            End If
+        Catch ex As Exception
+            rdbMetricVolUnit.IsChecked = False
+            rdbImperialVolUnit.IsChecked = False
+        End Try
+    End Sub
+
+    Private Sub rdbImperialVolUnit_Click(sender As Object, e As RoutedEventArgs) Handles rdbImperialVolUnit.Click
+        Try
+            Dim NewBandUserProfile As IUserProfile
+            NewBandUserProfile = BandClient.GetUserProfileFromDevice
+            NewBandUserProfile.DeviceSettings.LocaleSettings.VolumeUnits = VolumeUnitType.Imperial
+            BandClient.SaveUserProfileToBandOnly(NewBandUserProfile)
+        Catch ex As Exception
+            MessageBox.Show("試圖修改體積度量單位時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
+        End Try
+        Try
+            If BandClient.GetUserProfileFromDevice.DeviceSettings.LocaleSettings.VolumeUnits = VolumeUnitType.Metric Then
+                rdbMetricVolUnit.IsChecked = True
+                rdbImperialVolUnit.IsChecked = False
+            Else
+                rdbMetricVolUnit.IsChecked = False
+                rdbImperialVolUnit.IsChecked = True
+            End If
+        Catch ex As Exception
+            rdbMetricVolUnit.IsChecked = False
+            rdbImperialVolUnit.IsChecked = False
+        End Try
+    End Sub
+    Private Sub rdbMetricTempUnit_Click(sender As Object, e As RoutedEventArgs) Handles rdbMetricTempUnit.Click
+        Try
+            Dim NewBandUserProfile As IUserProfile
+            NewBandUserProfile = BandClient.GetUserProfileFromDevice
+            NewBandUserProfile.DeviceSettings.LocaleSettings.TemperatureUnits = TemperatureUnitType.Metric
+            BandClient.SaveUserProfileToBandOnly(NewBandUserProfile)
+        Catch ex As Exception
+            MessageBox.Show("試圖修改溫度度量單位時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
+        End Try
+        Try
+            If BandClient.GetUserProfileFromDevice.DeviceSettings.LocaleSettings.TemperatureUnits = TemperatureUnitType.Metric Then
+                rdbMetricTempUnit.IsChecked = True
+                rdbImperialTempUnit.IsChecked = False
+            Else
+                rdbMetricTempUnit.IsChecked = False
+                rdbImperialTempUnit.IsChecked = True
+            End If
+        Catch ex As Exception
+            rdbMetricTempUnit.IsChecked = False
+            rdbImperialTempUnit.IsChecked = False
+        End Try
+    End Sub
+
+    Private Sub rdbImperialTempUnit_Click(sender As Object, e As RoutedEventArgs) Handles rdbImperialTempUnit.Click
+        Try
+            Dim NewBandUserProfile As IUserProfile
+            NewBandUserProfile = BandClient.GetUserProfileFromDevice
+            NewBandUserProfile.DeviceSettings.LocaleSettings.TemperatureUnits = TemperatureUnitType.Imperial
+            BandClient.SaveUserProfileToBandOnly(NewBandUserProfile)
+        Catch ex As Exception
+            MessageBox.Show("試圖修改溫度度量單位時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
+        End Try
+        Try
+            If BandClient.GetUserProfileFromDevice.DeviceSettings.LocaleSettings.TemperatureUnits = TemperatureUnitType.Metric Then
+                rdbMetricTempUnit.IsChecked = True
+                rdbImperialTempUnit.IsChecked = False
+            Else
+                rdbMetricTempUnit.IsChecked = False
+                rdbImperialTempUnit.IsChecked = True
+            End If
+        Catch ex As Exception
+            rdbMetricTempUnit.IsChecked = False
+            rdbImperialTempUnit.IsChecked = False
+        End Try
+    End Sub
+    Private Sub rdbMetricEnergyUnit_Click(sender As Object, e As RoutedEventArgs) Handles rdbMetricEnergyUnit.Click
+        Try
+            Dim NewBandUserProfile As IUserProfile
+            NewBandUserProfile = BandClient.GetUserProfileFromDevice
+            NewBandUserProfile.DeviceSettings.LocaleSettings.EnergyUnits = EnergyUnitType.Metric
+            BandClient.SaveUserProfileToBandOnly(NewBandUserProfile)
+        Catch ex As Exception
+            MessageBox.Show("試圖修改能量度量單位時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
+        End Try
+        Try
+            If BandClient.GetUserProfileFromDevice.DeviceSettings.LocaleSettings.EnergyUnits = EnergyUnitType.Metric Then
+                rdbMetricEnergyUnit.IsChecked = True
+                rdbImperialEnergyUnit.IsChecked = False
+            Else
+                rdbMetricEnergyUnit.IsChecked = False
+                rdbImperialEnergyUnit.IsChecked = True
+            End If
+        Catch ex As Exception
+            rdbMetricEnergyUnit.IsChecked = False
+            rdbImperialEnergyUnit.IsChecked = False
+        End Try
+    End Sub
+
+    Private Sub rdbImperialEnergyUnit_Click(sender As Object, e As RoutedEventArgs) Handles rdbImperialEnergyUnit.Click
+        Try
+            Dim NewBandUserProfile As IUserProfile
+            NewBandUserProfile = BandClient.GetUserProfileFromDevice
+            NewBandUserProfile.DeviceSettings.LocaleSettings.EnergyUnits = EnergyUnitType.Imperial
+            BandClient.SaveUserProfileToBandOnly(NewBandUserProfile)
+        Catch ex As Exception
+            MessageBox.Show("試圖修改能量度量單位時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
+        End Try
+        Try
+            If BandClient.GetUserProfileFromDevice.DeviceSettings.LocaleSettings.EnergyUnits = EnergyUnitType.Metric Then
+                rdbMetricEnergyUnit.IsChecked = True
+                rdbImperialEnergyUnit.IsChecked = False
+            Else
+                rdbMetricEnergyUnit.IsChecked = False
+                rdbImperialEnergyUnit.IsChecked = True
+            End If
+        Catch ex As Exception
+            rdbMetricEnergyUnit.IsChecked = False
+            rdbImperialEnergyUnit.IsChecked = False
+        End Try
+    End Sub
+
+    Private Sub btnAddTile_Click(sender As Object, e As RoutedEventArgs) Handles btnAddTile.Click
+        If lstAvailableTiles.SelectedIndex > -1 Then
+            UserEditedTiles.Add(BandAvailableTiles(lstAvailableTiles.SelectedIndex))
+            UserEditedTilesNameList.Add(BandAvailableTilesNameList(lstAvailableTiles.SelectedIndex))
+            BandAvailableTiles.RemoveAt(lstAvailableTiles.SelectedIndex)
+            BandAvailableTilesNameList.RemoveAt(lstAvailableTiles.SelectedIndex)
+            RefreshTileList(-2, UserEditedTilesNameList.Count - 1)
+        End If
+    End Sub
+
+    Private Sub btnRemoveTile_Click(sender As Object, e As RoutedEventArgs) Handles btnRemoveTile.Click
+        If lstPinnedTiles.SelectedIndex > -1 Then
+            BandAvailableTiles.Add(UserEditedTiles(lstPinnedTiles.SelectedIndex))
+            BandAvailableTilesNameList.Add(UserEditedTilesNameList(lstPinnedTiles.SelectedIndex))
+            UserEditedTiles.RemoveAt(lstPinnedTiles.SelectedIndex)
+            UserEditedTilesNameList.RemoveAt(lstPinnedTiles.SelectedIndex)
+            RefreshTileList(BandAvailableTilesNameList.Count - 1, -2)
+        End If
+    End Sub
+
+    Private Sub btnTileMoveUp_Click(sender As Object, e As RoutedEventArgs) Handles btnTileMoveUp.Click
+        If lstPinnedTiles.SelectedIndex >= 1 Then
+            Dim BandTileTemp As AdminBandTile = UserEditedTiles(lstPinnedTiles.SelectedIndex - 1)
+            Dim BandTileNameTemp As String = UserEditedTilesNameList(lstPinnedTiles.SelectedIndex - 1)
+            UserEditedTiles(lstPinnedTiles.SelectedIndex - 1) = UserEditedTiles(lstPinnedTiles.SelectedIndex)
+            UserEditedTilesNameList(lstPinnedTiles.SelectedIndex - 1) = UserEditedTilesNameList(lstPinnedTiles.SelectedIndex)
+            UserEditedTiles(lstPinnedTiles.SelectedIndex) = BandTileTemp
+            UserEditedTilesNameList(lstPinnedTiles.SelectedIndex) = BandTileNameTemp
+            RefreshTileList(-2, lstPinnedTiles.SelectedIndex - 1)
+        End If
+    End Sub
+
+    Private Sub btnTileMoveDown_Click(sender As Object, e As RoutedEventArgs) Handles btnTileMoveDown.Click
+        If lstPinnedTiles.SelectedIndex >= 0 And lstPinnedTiles.SelectedIndex < UserEditedTilesNameList.Count - 1 Then
+            Dim BandTileTemp As AdminBandTile = UserEditedTiles(lstPinnedTiles.SelectedIndex + 1)
+            Dim BandTileNameTemp As String = UserEditedTilesNameList(lstPinnedTiles.SelectedIndex + 1)
+            UserEditedTiles(lstPinnedTiles.SelectedIndex + 1) = UserEditedTiles(lstPinnedTiles.SelectedIndex)
+            UserEditedTilesNameList(lstPinnedTiles.SelectedIndex + 1) = UserEditedTilesNameList(lstPinnedTiles.SelectedIndex)
+            UserEditedTiles(lstPinnedTiles.SelectedIndex) = BandTileTemp
+            UserEditedTilesNameList(lstPinnedTiles.SelectedIndex) = BandTileNameTemp
+            RefreshTileList(-2, lstPinnedTiles.SelectedIndex + 1)
+        End If
+    End Sub
+
+    Private Sub lstAvailableTiles_SelectionChanged(sender As Object, e As SelectionChangedEventArgs) Handles lstAvailableTiles.SelectionChanged
+        If lstAvailableTiles.SelectedIndex > -1 Then
+            btnAddTile.IsEnabled = True
+        End If
+    End Sub
+
+    Private Sub lstPinnedTiles_SelectionChanged(sender As Object, e As SelectionChangedEventArgs) Handles lstPinnedTiles.SelectionChanged
+        If lstPinnedTiles.SelectedIndex > -1 Then
+            btnRemoveTile.IsEnabled = True
+            btnTileMoveUp.IsEnabled = True
+            btnTileMoveDown.IsEnabled = True
+            If lstPinnedTiles.SelectedIndex = 0 Then
+                btnTileMoveUp.IsEnabled = False
+            End If
+            If lstPinnedTiles.SelectedIndex = UserEditedTilesNameList.Count - 1 Then
+                btnTileMoveDown.IsEnabled = False
+            End If
+        End If
+    End Sub
+
+    Private Sub btnSetBandStartStrip_Click(sender As Object, e As RoutedEventArgs) Handles btnSetBandStartStrip.Click
+        Try
+            SetBandTileInfo()
+        Catch ex As Exception
+            MessageBox.Show("試圖設置裝置動態磚資料時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
+        End Try
+        Try
+            GetBandTileInfo()
+            lstAvailableTiles.ItemsSource = EmptyList
+            lstPinnedTiles.ItemsSource = EmptyList
+            lstAvailableTiles.ItemsSource = BandAvailableTilesNameList
+            lstPinnedTiles.ItemsSource = UserEditedTilesNameList
+        Catch ex As Exception
+            MessageBox.Show("試圖獲取裝置動態磚資料時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
+            lstAvailableTiles.ItemsSource = EmptyList
+            lstPinnedTiles.ItemsSource = EmptyList
+        End Try
+    End Sub
+
+    Private Sub cmbDateFormat_SelectionChanged(sender As Object, e As SelectionChangedEventArgs) Handles cmbDateFormat.SelectionChanged
+        If cmbDateFormat.SelectedIndex > 0 Then
+            Try
+                Dim NewBandUserProfile As IUserProfile
+                NewBandUserProfile = BandClient.GetUserProfileFromDevice
+                NewBandUserProfile.DeviceSettings.LocaleSettings.DateFormat = cmbDateFormat.SelectedIndex
+                BandClient.SaveUserProfileToBandOnly(NewBandUserProfile)
+            Catch ex As Exception
+                MessageBox.Show("試圖修改日期格式時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
+            End Try
+            Try
+                cmbDateFormat.SelectedIndex = BandClient.GetUserProfileFromDevice.DeviceSettings.LocaleSettings.DateFormat
+            Catch ex As Exception
+                cmbDateFormat.SelectedIndex = 0
+            End Try
+        End If
+    End Sub
+
+    Private Sub cmbTimeFormat_SelectionChanged(sender As Object, e As SelectionChangedEventArgs) Handles cmbTimeFormat.SelectionChanged
+        If cmbTimeFormat.SelectedIndex > 0 Then
+            Try
+                Dim NewBandUserProfile As IUserProfile
+                NewBandUserProfile = BandClient.GetUserProfileFromDevice
+                NewBandUserProfile.DeviceSettings.LocaleSettings.TimeFormat = cmbTimeFormat.SelectedIndex
+                BandClient.SaveUserProfileToBandOnly(NewBandUserProfile)
+            Catch ex As Exception
+                MessageBox.Show("試圖修改時間格式時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
+            End Try
+            Try
+                cmbTimeFormat.SelectedIndex = BandClient.GetUserProfileFromDevice.DeviceSettings.LocaleSettings.TimeFormat
+            Catch ex As Exception
+                cmbTimeFormat.SelectedIndex = 0
+            End Try
+        End If
+    End Sub
+
+    Private Sub txtNumberSeparator_MouseUp(sender As Object, e As MouseButtonEventArgs) Handles txtNumberSeparator.MouseUp
+        Dim NewNumberSeparator As String
+        NewNumberSeparator = InputBox("請輸入新的小數符號。", "修改小數符號", txtNumberSeparator.Text)
+        If NewNumberSeparator.Trim.Length >= 1 Then
+            Try
+                Dim NewBandUserProfile As IUserProfile
+                NewBandUserProfile = BandClient.GetUserProfileFromDevice
+                NewBandUserProfile.DeviceSettings.LocaleSettings.NumberSeparator = NewNumberSeparator(0)
+                BandClient.SaveUserProfileToBandOnly(NewBandUserProfile)
+            Catch ex As Exception
+                MessageBox.Show("試圖修改小數符號時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
+            End Try
+            Try
+                txtNumberSeparator.Text = BandClient.GetUserProfileFromDevice.DeviceSettings.LocaleSettings.NumberSeparator
+            Catch ex As Exception
+                txtNumberSeparator.Text = "試圖獲取資料時發生例外情況: " & ex.Message
+            End Try
+        End If
+    End Sub
+
+    Private Sub txtDecimalSeparator_MouseUp(sender As Object, e As MouseButtonEventArgs) Handles txtDecimalSeparator.MouseUp
+        Dim NewDecimalSeparator As String
+        NewDecimalSeparator = InputBox("請輸入新的數字分位符號。", "修改數字分位符號", txtDecimalSeparator.Text)
+        If NewDecimalSeparator.Trim.Length >= 1 Then
+            Try
+                Dim NewBandUserProfile As IUserProfile
+                NewBandUserProfile = BandClient.GetUserProfileFromDevice
+                NewBandUserProfile.DeviceSettings.LocaleSettings.DecimalSeparator = NewDecimalSeparator(0)
+                BandClient.SaveUserProfileToBandOnly(NewBandUserProfile)
+            Catch ex As Exception
+                MessageBox.Show("試圖修改數字分位符號時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
+            End Try
+            Try
+                txtDecimalSeparator.Text = BandClient.GetUserProfileFromDevice.DeviceSettings.LocaleSettings.DecimalSeparator
+            Catch ex As Exception
+                txtDecimalSeparator.Text = "試圖獲取資料時發生例外情況: " & ex.Message
+            End Try
+        End If
+    End Sub
+    Private Sub txtDateSeparator_MouseUp(sender As Object, e As MouseButtonEventArgs) Handles txtDateSeparator.MouseUp
+        Dim NewDateSeparator As String
+        NewDateSeparator = InputBox("請輸入新的日期分位符號。", "修改日期分位符號", txtDateSeparator.Text)
+        If NewDateSeparator.Trim.Length >= 1 Then
+            Try
+                Dim NewBandUserProfile As IUserProfile
+                NewBandUserProfile = BandClient.GetUserProfileFromDevice
+                NewBandUserProfile.DeviceSettings.LocaleSettings.DateSeparator = NewDateSeparator(0)
+                BandClient.SaveUserProfileToBandOnly(NewBandUserProfile)
+            Catch ex As Exception
+                MessageBox.Show("試圖修改日期分位符號時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
+            End Try
+            Try
+                txtDateSeparator.Text = BandClient.GetUserProfileFromDevice.DeviceSettings.LocaleSettings.DateSeparator
+            Catch ex As Exception
+                txtDateSeparator.Text = "試圖獲取資料時發生例外情況: " & ex.Message
+            End Try
+        End If
+    End Sub
+
+    Private Async Sub btnVibrate_Click(sender As Object, e As RoutedEventArgs) Handles btnVibrate.Click
+        Try
+            Await BandClient.VibrateAsync(AdminVibrationType.SystemStartUp)
+        Catch ex As Exception
+
         End Try
     End Sub
 End Class
