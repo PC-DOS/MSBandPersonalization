@@ -15,10 +15,3 @@
 * 修改距离、质量等的显示单位，支持在公制与英制之间切换（仅限第一代Microsoft Band）。
 * 修改日期和时间格式（仅限第一代Microsoft Band）。
 * （未必可用）强制跳过OOBE激活过程、启用或停用演示模式。
-
-## 最近一个发行版
-
-BuildTag: 1.2.fbl-release.20201004-1540
-
-[https://www.lanzoui.com/b00twg1la](https://www.lanzoui.com/b00twg1la)
-密码:1gyu
