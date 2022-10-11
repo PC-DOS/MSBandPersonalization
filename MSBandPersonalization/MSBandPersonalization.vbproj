@@ -115,6 +115,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="BandConnectionManager.vb" />
+    <Compile Include="BandThemeManager.vb" />
     <Compile Include="BandTileManager.vb" />
     <Compile Include="MainWindow.xaml.vb">
       <DependentUpon>MainWindow.xaml</DependentUpon>

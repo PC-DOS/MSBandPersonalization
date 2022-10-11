@@ -653,6 +653,7 @@ Class MainWindow
     Private Sub btnBrowseMeTileImage_Click(sender As Object, e As RoutedEventArgs) Handles btnBrowseMeTileImage.Click
         Dim ImageBrowseDialog As New CommonOpenFileDialog
         With ImageBrowseDialog
+            .EnsureFileExists = True
             .Filters.Add(New CommonFileDialogFilter("圖片", ".jpg;.jpeg;.bmp;.bip;.png;.gif"))
             .Filters.Add(New CommonFileDialogFilter("所有檔案", ".*"))
         End With
@@ -1467,5 +1468,93 @@ Class MainWindow
         Catch ex As Exception
 
         End Try
+    End Sub
+
+    Private Sub btnLoadBandTheme_Click(sender As Object, e As RoutedEventArgs) Handles btnLoadBandTheme.Click
+        Dim OpenThemeFileDialog As New CommonOpenFileDialog
+        With OpenThemeFileDialog
+            .Title = "載入佈景主題"
+            .EnsureFileExists = True
+            .Filters.Add(New CommonFileDialogFilter("裝置佈景主題文件", "msbandtheme"))
+            .Filters.Add(New CommonFileDialogFilter("XML 文件", "xml"))
+            .Filters.Add(New CommonFileDialogFilter("所有檔案", "*"))
+        End With
+        If OpenThemeFileDialog.ShowDialog() = CommonFileDialogResult.Ok Then
+            Dim NewTheme As New BandThemeData
+            Try
+                NewTheme = LoadBandThemeFromFile(OpenThemeFileDialog.FileName)
+                btnColorBase.Background = New SolidColorBrush(Color.FromRgb(NewTheme.BaseColor.Red, NewTheme.BaseColor.Green, NewTheme.BaseColor.Blue))
+                btnColorHighContrast.Background = New SolidColorBrush(Color.FromRgb(NewTheme.HighContrastColor.Red, NewTheme.HighContrastColor.Green, NewTheme.HighContrastColor.Blue))
+                btnColorHighlight.Background = New SolidColorBrush(Color.FromRgb(NewTheme.HighlightColor.Red, NewTheme.HighlightColor.Green, NewTheme.HighlightColor.Blue))
+                btnColorLowlight.Background = New SolidColorBrush(Color.FromRgb(NewTheme.LowlightColor.Red, NewTheme.LowlightColor.Green, NewTheme.LowlightColor.Blue))
+                btnColorMuted.Background = New SolidColorBrush(Color.FromRgb(NewTheme.MutedColor.Red, NewTheme.MutedColor.Green, NewTheme.MutedColor.Blue))
+                btnColorSecondary.Background = New SolidColorBrush(Color.FromRgb(NewTheme.SecondaryColor.Red, NewTheme.SecondaryColor.Green, NewTheme.SecondaryColor.Blue))
+                btnColorBase.Tag = Color.FromRgb(NewTheme.BaseColor.Red, NewTheme.BaseColor.Green, NewTheme.BaseColor.Blue)
+                btnColorHighContrast.Tag = Color.FromRgb(NewTheme.HighContrastColor.Red, NewTheme.HighContrastColor.Green, NewTheme.HighContrastColor.Blue)
+                btnColorHighlight.Tag = Color.FromRgb(NewTheme.HighlightColor.Red, NewTheme.HighlightColor.Green, NewTheme.HighlightColor.Blue)
+                btnColorLowlight.Tag = Color.FromRgb(NewTheme.LowlightColor.Red, NewTheme.LowlightColor.Green, NewTheme.LowlightColor.Blue)
+                btnColorMuted.Tag = Color.FromRgb(NewTheme.MutedColor.Red, NewTheme.MutedColor.Green, NewTheme.MutedColor.Blue)
+                btnColorSecondary.Tag = Color.FromRgb(NewTheme.SecondaryColor.Red, NewTheme.SecondaryColor.Green, NewTheme.SecondaryColor.Blue)
+            Catch ex As Exception
+                MessageBox.Show("打開佈景主題""" & OpenThemeFileDialog.FileName & """時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
+            End Try
+        End If
+    End Sub
+
+    Private Sub btnSaveBandTheme_Click(sender As Object, e As RoutedEventArgs) Handles btnSaveBandTheme.Click
+        Dim SaveThemeFileDialog As New CommonSaveFileDialog
+        With SaveThemeFileDialog
+            .Title = "儲存佈景主題"
+            .EnsurePathExists = True
+            .EnsureValidNames = True
+            .Filters.Add(New CommonFileDialogFilter("裝置佈景主題文件", "msbandtheme"))
+            .Filters.Add(New CommonFileDialogFilter("XML 文件", "xml"))
+            .Filters.Add(New CommonFileDialogFilter("所有檔案", "*"))
+        End With
+        If SaveThemeFileDialog.ShowDialog = CommonFileDialogResult.Ok Then
+            Dim ThemeToSave As New BandThemeData
+            With ThemeToSave
+                Dim CurrentProcessingColor As Color
+                CurrentProcessingColor = btnColorBase.Tag
+                .BaseColor.Red = CurrentProcessingColor.R
+                .BaseColor.Green = CurrentProcessingColor.G
+                .BaseColor.Blue = CurrentProcessingColor.B
+                CurrentProcessingColor = btnColorHighContrast.Tag
+                .HighContrastColor.Red = CurrentProcessingColor.R
+                .HighContrastColor.Green = CurrentProcessingColor.G
+                .HighContrastColor.Blue = CurrentProcessingColor.B
+                CurrentProcessingColor = btnColorHighlight.Tag
+                .HighlightColor.Red = CurrentProcessingColor.R
+                .HighlightColor.Green = CurrentProcessingColor.G
+                .HighlightColor.Blue = CurrentProcessingColor.B
+                CurrentProcessingColor = btnColorLowlight.Tag
+                .LowlightColor.Red = CurrentProcessingColor.R
+                .LowlightColor.Green = CurrentProcessingColor.G
+                .LowlightColor.Blue = CurrentProcessingColor.B
+                CurrentProcessingColor = btnColorMuted.Tag
+                .MutedColor.Red = CurrentProcessingColor.R
+                .MutedColor.Green = CurrentProcessingColor.G
+                .MutedColor.Blue = CurrentProcessingColor.B
+                CurrentProcessingColor = btnColorSecondary.Tag
+                .SecondaryColor.Red = CurrentProcessingColor.R
+                .SecondaryColor.Green = CurrentProcessingColor.G
+                .SecondaryColor.Blue = CurrentProcessingColor.B
+            End With
+            Try
+                Select Case SaveThemeFileDialog.SelectedFileTypeIndex
+                    Case 1
+                        SaveBandThemeToFile(ThemeToSave, SaveThemeFileDialog.FileName & ".msbandtheme")
+                        MessageBox.Show("成功將目前的佈景主題儲存到""" & SaveThemeFileDialog.FileName & ".msbandtheme" & """。", "儲存佈景主題", MessageBoxButton.OK, MessageBoxImage.Information)
+                    Case 2
+                        SaveBandThemeToFile(ThemeToSave, SaveThemeFileDialog.FileName & ".xml")
+                        MessageBox.Show("成功將目前的佈景主題儲存到""" & SaveThemeFileDialog.FileName & ".xml" & """。", "儲存佈景主題", MessageBoxButton.OK, MessageBoxImage.Information)
+                    Case Else
+                        SaveBandThemeToFile(ThemeToSave, SaveThemeFileDialog.FileName)
+                        MessageBox.Show("成功將目前的佈景主題儲存到""" & SaveThemeFileDialog.FileName & """。", "儲存佈景主題", MessageBoxButton.OK, MessageBoxImage.Information)
+                End Select
+            Catch ex As Exception
+                MessageBox.Show("儲存目前的佈景主題到""" & SaveThemeFileDialog.FileName & """時發生例外情況: " & ex.Message, "錯誤", MessageBoxButton.OK, MessageBoxImage.Error)
+            End Try
+        End If
     End Sub
 End Class
